@@ -4,8 +4,10 @@ const rowsNames = (state= [] , action) => {
             return  action.payload;
         case "DELET":
             return state.filter((item) => item.id != action.payload)
-        case "EDIT":
-            return [action.payload , ...state]
+        // case "ADD":
+        //     return [action.payload , ...state]
+        // case "EDIT":
+        //     return 
         default :
             return state;
     }
