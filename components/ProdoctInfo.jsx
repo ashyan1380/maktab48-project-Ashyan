@@ -169,8 +169,11 @@ function ProdoctInfo(props) {
         <div className={classes.toolbar} />
         {error&& <div>{"خطا وجود دارد  لطفا اتصال خود را بررسی کنید"}</div> }
       {prodInfo ? <div align="right">
-        <img align="right" style={{"margin":"20px","width":"250px","height":"200px"}}
-        src={prodInfo.image}/>&ensp;
+        <img align="right" style={{"margin":"20px","width":"250px","height":"200px",
+        "position":"absolute"  
+      }}
+        src={prodInfo.image}/><br></br>
+        <div style={{"marginTop":"200px","marginRight":"20px"}}>
         <h1 >{prodInfo.productName}</h1>
         <h2 >{prodInfo.category}</h2>
         <h3><strong>{prodInfo.price}</strong>تومان</h3>
@@ -193,7 +196,9 @@ function ProdoctInfo(props) {
           style={{"backgroundColor":"#f50057","color":"white"}}
           disableElevation>
             <RemoveCircleOutlineIcon/>&emsp;حذف از سبد خرید
-        </Button>} &emsp;
+        </Button>
+       
+        } &emsp;</div>
       </div> :
         <img src={loading}/>
       }
