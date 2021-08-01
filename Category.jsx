@@ -25,20 +25,25 @@ import {getNames} from '../api/getPro';
 import {fetchProd , deletProd} from '../Stor/Action/index'
 import { BrowserRouter as Router, Route, Switch  } from "react-router-dom";
 import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
 import { logout } from "../utils/auth";
 import SettingsIcon from '@material-ui/icons/Settings';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import ShowProdInHome from "./ShowProdInHome";
 import ProdoctInfo from "./ProdoctInfo";
 import Badge from '@material-ui/core/Badge';
 import Cart from './Cart'
 import { create } from 'jss';
 import rtl from 'jss-rtl';
-import Category from './Category';
+import { Link , useParams } from 'react-router-dom';
+import prodoctsCategor from "../api/getProdFromCtegor";
+import HomeIcon from '@material-ui/icons/Home';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Grid from '@material-ui/core/Grid';
 
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
-
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,6 +51,16 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'right',
     // backgroundImage: `url(${backImag})` ,
     // width:"100%",
+  },
+  media: {
+    height: 140,
+  },
+  rootCard:{
+    minWidth:"200px",
+    // maxWidth:"300px",
+    flexGrow: 2,
+    display: 'flex',
+    justify:"right"
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
@@ -81,7 +96,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Home(props) {
+function Category(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -89,18 +104,31 @@ function Home(props) {
   const [open, setOpen] = React.useState(false);
   const rows = useSelector(state => state.rowsNames);
   const dispatch = useDispatch();
-  const [error, setError] = useState();
   const [uniqueCategories, setUniqueCategories] = useState([]);
   const cart = useSelector(state => state.cart);
+  const { category } = useParams();
+  const [prodoct, setProdoct] = useState([]);
+  // set prodocts to show
+  useEffect(() => {
+    // window.location.reload();
+    prodoctsCategor (category)
+    .then ((data)=> {setProdoct(data);})
+    .catch(err=> {return err});
+    console.log(prodoct);
+  }, [category])
+  useEffect(() => {
+   console.log(prodoct);
+  }, [prodoct])
   // console.log(cart.length);
+    // get all prodocts
   useEffect(() => {
     getNames ()
     .then ((data)=> {dispatch(fetchProd(data))})
-    .catch(err=> {setError("خطا وجود دارد لطفا اتصال خود را بررسی کنید");})
-    console.log(error);
+    .catch(err=> {return err})
+    // console.log(rows);
     // set categories
-
     }, [])
+    // set categories in drawer
     useEffect(() => {
       let categoreis = [];
       rows.map((row)=> categoreis.push(row.category))
@@ -139,7 +167,7 @@ function Home(props) {
       <Divider />
     </div>
   );
-  
+
   const drawer = (
     <div>
       <div className={classes.toolbar} />
@@ -155,13 +183,11 @@ function Home(props) {
       <Divider />
     </div>
   );
-  
+
   const container = window !== undefined ? () => window().document.body : undefined;
-  //   console.log(window.document.body );
-  
+//   console.log(window.document.body );
+
   return (
-    // <Router>
-    // <Switch>
     <StylesProvider jss={jss}>
     <div className={classes.root} dir="rtl">
       <CssBaseline />
@@ -173,9 +199,14 @@ function Home(props) {
             edge="start"
             onClick={handleDrawerToggle}
             className={classes.menuButton}
-            >
+          >
             <MenuIcon />
           </IconButton>
+          <Link to="/">            
+            <Button variant="contained"style={backGround()} onClick={logout}>
+              <HomeIcon/>
+            </Button>
+            </Link> &emsp;
           <Link to="/setting" style={{"text-decoration": "none"}}>            
              <Button variant="contained" style={backGround()} onClick={logout}>
                <SettingsIcon/>
@@ -197,18 +228,17 @@ function Home(props) {
             style={{"align":"right"}}
             noWrap
             className={classes.title}
-            >
+          >
             &emsp; فروشگاه اینترنتی
           </Typography>
           <IconButton
             align="right"
-            color="inherit"
-            aria-label="open drawer"
-            edge="end"
-            onClick={handleDrawerToggle}
-            className={classes.menuButton}
+              color="inherit"
+              aria-label="open drawer"
+              edge="end"
+              onClick={handleDrawerToggle}
+              className={classes.menuButton}
             >
-              {/* <MenuIcon align="right"/> */}
             </IconButton>
         </Toolbar>
       </AppBar>
@@ -237,34 +267,52 @@ function Home(props) {
          anchor={"right"}  implementation="css">
           <Drawer
           anchor={"right"} 
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          variant="permanent"
-          open
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            variant="permanent"
+            open
           >
             {drawer}
           </Drawer>
         </Hidden>
       </nav>
       <main className={classes.content}  align="right">
-
-    <Route path="/" exact>
       <div className={classes.toolbar} />
-      {error && <div>{error}</div>}
       <div>
-        {uniqueCategories.map((categoriess)=>
-        <div key={categoriess}>
-          <ShowProdInHome categor={categoriess}/></div>
-        )}
+        {/* {prodoct.map(()=><div>jskdjlfljfskf</div>)} */}
+        <Grid xs container spacing={2}>
+        {prodoct.map((prod)=>
+          <Grid item xs={3} align="right">
+            <Link to={`/${prod.id}`}  style={{"text-decoration": "none"}}>
+            <Card className={classes.rootCard}>
+            <CardActionArea>
+              <CardMedia
+                className={classes.media}
+                image={prod.image}
+                title="Contemplative Reptile"
+              />
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="h2">
+                      {prod.productName}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      تومان{prod.price}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+              </Link>
+              </Grid>
+              )}
+              </Grid>
       </div>
-    </Route>
     </main>
     </div></StylesProvider>
   );
 }
 
-Home.propTypes = {
+Category.propTypes = {
   /**
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
@@ -272,4 +320,4 @@ Home.propTypes = {
   window: PropTypes.func,
 };
 
-export default Home;
+export default Category;

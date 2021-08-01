@@ -1,5 +1,5 @@
 import React , {useState , useEffect} from 'react';
-import { withStyles, Theme, createStyles, makeStyles, useTheme  } from '@material-ui/core/styles';
+import { withStyles, Theme, createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -7,24 +7,23 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import PropTypes from 'prop-types';
-import IconButton from '@material-ui/core/IconButton';
 import {useSelector , useDispatch} from 'react-redux';
 import {getUser } from '../Stor/Action/index'
 import {Provider} from 'react-redux';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import {getNOHandledUsers} from "../api/getNOHandledUsers";
+import {getHandledUsers} from "../api/getHandledUsers";
 import {listOfUsers} from "../Stor/Reducer/listOfUsers";
 import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
 import ProductsOfUsers from './ProductsOfUsers';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import {handled} from '../api/changeHandled';
-import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
+import TablePagination from '@material-ui/core/TablePagination';
+import IconButton from '@material-ui/core/IconButton';
+import LastPageIcon from '@material-ui/icons/LastPage';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import PropTypes from 'prop-types';
 
 const useStyles1 = makeStyles((theme) => ({
   root: {
@@ -32,8 +31,8 @@ const useStyles1 = makeStyles((theme) => ({
     marginLeft: theme.spacing(2.5),
   },
 }));
-
 function TablePaginationActions(props) {
+
   const classes = useStyles1();
   const theme = useTheme();
   const { count, page, rowsPerPage, onPageChange } = props;
@@ -90,6 +89,7 @@ TablePaginationActions.propTypes = {
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
 };
+
 const StyledTableCell = withStyles((theme) =>
   createStyles({
     head: {
@@ -112,9 +112,9 @@ const StyledTableRow = withStyles((theme) =>
   }),
 )(TableRow);
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
+// function createData(name, calories, fat, carbs, protein) {
+//   return { name, calories, fat, carbs, protein };
+// }
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -130,35 +130,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function UsersNotOrder() {
+export default function UsersOrder() {
     const rows = useSelector(state => state.listOfUsers);
     const dispatch = useDispatch();
     useEffect(() => {
-      getNOHandledUsers ()
+      getHandledUsers ()
         .then ((data)=> {dispatch(getUser(data))})
         .catch(err=> {return err})
     }, [])
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    
+  const classes = useStyles();
   const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };  
+  };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const classes = useStyles();
+  const [selectedRow, setSelectedRow] = useState()
   const [nameModal, setNameModal] = useState();
   const [addressModal, setAddress] = useState();
   const [phon, setPhon] = useState();
-  const [error, setError] = useState();
   const [orderTime, setOrderTime] = useState();
   const [products, setProducts] = useState();
-  const [open, setOpen] = useState(false);
   const [id, setId] = useState();
-  const [newUser, setnewUser] = useState([]);
+  const [open, setOpen] = useState(false);
   function handleShowInfo(row) {
     setOpen(true);
+    setSelectedRow(row);
     setNameModal(row.userName);
     setAddress(row.addres);
     setPhon(row.phon);
@@ -187,51 +188,35 @@ export default function UsersNotOrder() {
     }
   }
   
-  
-  function handling() {
-    let s= new Date().toLocaleString();
-    let userInfo = {
-      "id":id,
-      "handleTime":s,
-      "isHandOver":true,
-    }
-    // console.log(userInfo);
-    handled(userInfo);
-    setOpen(false)
-    getNOHandledUsers ()
-    .then ((data)=> {dispatch(getUser(data))})
-    .catch(err=> {console.log("خطا وجود دارد لطفا اتصال خود را بررسی کنید")})
-  }
-  useEffect(() => {
-    console.log(error);
-  }, [error])
+  console.log(selectedRow);
   return (
-    <div>
-      {error ? <div>{error}</div>:
     <TableContainer component={Paper}>
-      <h1 align="right">سفارشات تحویل داده نشده</h1>
+      <h1 align="right">سفارشات تحویل داده شده</h1>
       <Table className={classes.table} aria-label="customized table">
         <TableHead style={{"backgroundColor":"#3f51b5"}} >
           <TableRow>
-            <StyledTableCell align="right">نام کاربر</StyledTableCell>
-            <StyledTableCell align="right">مجموع مبلغ</StyledTableCell>
-            <StyledTableCell align="right">زمان ثبت سفارش</StyledTableCell>
             <StyledTableCell align="right"></StyledTableCell>
+            <StyledTableCell align="right">زمان ثبت سفارش</StyledTableCell>
+            <StyledTableCell align="right">مجموع مبلغ</StyledTableCell>
+            <StyledTableCell align="right">نام کاربر</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) =>
+        {(rowsPerPage > 0
+            ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            : rows
+          ).map((row) =>
             <StyledTableRow key={row.id}>
-              <StyledTableCell align="right">{row.userName}</StyledTableCell>
-              <StyledTableCell align="right">{row.products.map((prod)=>
-                  prod.price*prod.number
-              )}</StyledTableCell>
-              <StyledTableCell align="right">{row.orderTime}</StyledTableCell>
               <StyledTableCell align="right"><Button variant="contained" color="primary"
-                onClick={()=>handleShowInfo(row)}>
+              onClick={()=>handleShowInfo(row)}>
                 بررسی سفارش
               </Button>
               </StyledTableCell>
+              <StyledTableCell align="right">{row.orderTime}</StyledTableCell>
+              <StyledTableCell align="right">{row.products.map((prod)=>
+                  prod.price*prod.number
+              )}</StyledTableCell>
+              <StyledTableCell align="right">{row.userName}</StyledTableCell>
             </StyledTableRow>
         )}
         </TableBody>
@@ -254,7 +239,7 @@ export default function UsersNotOrder() {
           </TableRow>
         </TableFooter>
       </Table>
-      <Modal
+      {selectedRow && <Modal
             // align="right"
             open={open}
             onClose={()=>setOpen(false)}
@@ -265,16 +250,14 @@ export default function UsersNotOrder() {
           <HighlightOffIcon  align="left"/>
          </bottun>
           <h1 align="right">اطلاعات مشتری</h1>
-            <h3 align="right">نام مشتری: {nameModal}</h3>
-            <h3 align="right">آدرس: {addressModal}</h3>
-            <h3 align="right">تلفن: {phon}</h3>
-            <h3 align="right">زمان سفارش: {orderTime}</h3>
-            <ProductsOfUsers products={products} /><br></br>
-          <Button variant="contained" color="primary" onClick={handling} >
-              تحویل شد
-          </Button>
+            <h3 align="right">نام مشتری: {selectedRow.userName}</h3>
+            <h3 align="right">آدرس: {selectedRow.addres}</h3>
+            <h3 align="right">تلفن: {selectedRow.phon}</h3>
+            <h3 align="right">زمان سفارش: {selectedRow.orderTime}</h3>
+            <ProductsOfUsers products={selectedRow.products} />
+            <h3 align="right">{selectedRow.handleTime}:زمان تحویل</h3>
           </article>
-          </Modal>
-    </TableContainer>}</div>
+          </Modal>}
+    </TableContainer>
   );
 }

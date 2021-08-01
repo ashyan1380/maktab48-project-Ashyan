@@ -1,20 +1,33 @@
-import './App.css';
-import React,  { useState , useEffect } from "react";
-import SignIn from './components/SignIn';
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Dashboard from './components/Dashboard';
+import React,  { useState , useEffect , lazy , Suspense} from "react";
 import {loginValidation} from "./Stor/Action/index";
 import { ProtectedRoute } from "./ProtectedRoute";
-import Home from "./components/Home";
-import ProdoctInfo from './components/ProdoctInfo';
-import Cart from "./components/Cart";
-import Category from './components/Category';
-import CartValidation from './components/CartValidation';
-import Pardakht from './components/Pardakht';
-import ResponseCach from './components/ResponseCach';
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import loading from './c1bcd8a8c945b53da6b29f10a2a553c0.gif';
+// import SignIn from './components/SignIn';
+const SignIn = lazy(() => import('./components/SignIn'))
+// import Dashboard from './components/Dashboard';
+const Dashboard = lazy(() => import('./components/Dashboard'))
+// import Home from "./components/Home";
+// import ProdoctInfo from './components/ProdoctInfo';
+const ProdoctInfo = lazy(() => import('./components/ProdoctInfo'))
+// import Cart from "./components/Cart";
+const Cart = lazy(() => import("./components/Cart"))
+// import Category from './components/Category';
+const Category = lazy(() => import('./components/Category'))
 
+// import CartValidation from './components/CartValidation';
+const CartValidation = lazy(() => import('./components/CartValidation'))
+
+// import Pardakht from './components/Pardakht';
+const Pardakht = lazy(() => import('./components/Pardakht'))
+
+// import ResponseCach from './components/ResponseCach';
+const ResponseCach = lazy(() => import("./components/ResponseCach"))
+
+const Home = lazy(() => import("./components/Home"))
 function App() {
   return (
+    <Suspense fallback={<img src={loading} style={{"align":"center"}}/>}>
     <Router>
         <Switch>
           <Route path="/" exact>
@@ -46,6 +59,7 @@ function App() {
 
         </Switch>
       </Router>
+      </Suspense>
   );
 }
 
